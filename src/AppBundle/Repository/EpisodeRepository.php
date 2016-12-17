@@ -25,7 +25,9 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository
 
         $query = $queryBuilder->select('e')
             ->from('AppBundle:Episode', 'e')
-            ->where("e.date > '" . $date->format("Y-m-d") . "'")
+            ->where("e.date > :date")
+            ->setParameter("date", $date->format("Y-m-d"))
+            ->orderBy("e.date", "ASC")
             ->getQuery();
 
         return $query->getResult();
