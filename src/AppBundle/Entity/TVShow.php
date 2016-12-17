@@ -131,6 +131,7 @@ class TVShow
     {
         return $this->image;
     }
+
     /**
      * Constructor
      */

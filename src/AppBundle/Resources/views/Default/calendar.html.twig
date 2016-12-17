@@ -10,7 +10,8 @@
                 <ul>
                     {% for episode in episodes %}
                         <li>
-                            {{ episode.date |date("d/m/Y") }} : {{ episode.season.show }} - Saison {{ episode.season.number }} : {{ episode }} ({{ episode.number }})
+                            {{ episode.date |date("d/m/Y") }} : {{ episode.season.show }} -
+                            Saison {{ episode.season.number }} : {{ episode }} ({{ episode.number }})
                         </li>
                     {% endfor %}
                 </ul>

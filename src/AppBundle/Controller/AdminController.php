@@ -2,19 +2,17 @@
 
 namespace AppBundle\Controller;
 
-use AppBundle\Repository\EpisodeRepository;
-use AppBundle\Repository\SeasonRepository;
+use aharen\OMDbAPI;
+use AppBundle\Entity\Episode;
+use AppBundle\Entity\Season;
+use AppBundle\Entity\TVShow;
+use AppBundle\Forms\EpisodeType;
+use AppBundle\Forms\ShowType;
 use Doctrine\ORM\EntityManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use AppBundle\Forms\ShowType;
-use AppBundle\Forms\EpisodeType;
-use AppBundle\Entity\TVShow;
-use AppBundle\Entity\Season;
-use AppBundle\Entity\Episode;
-use aharen\OMDbAPI;
 
 /**
  * @Route("/admin")

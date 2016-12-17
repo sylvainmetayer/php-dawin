@@ -2,8 +2,6 @@
 
 namespace AppBundle\Repository;
 
-use Doctrine\ORM\EntityManager;
-
 /**
  * EpisodeRepository
  *

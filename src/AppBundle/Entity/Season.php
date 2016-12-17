@@ -73,6 +73,7 @@ class Season
     {
         return $this->number;
     }
+
     /**
      * Constructor
      */
