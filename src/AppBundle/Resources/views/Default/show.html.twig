@@ -14,7 +14,7 @@
                 {% for season in show.seasons %}
                     <h4>Saison {{ season }}</h4>
                     {% for episode in season.episodes %}
-                        {{ episode.number }} - {{ episode }}
+                        {{ episode.number }} - {{ episode }} ({{ episode.date |date("d/m/Y") }})
                         {% if app.user %}
                             <a href="{{ path('admin_delete_episode', {id: episode.id}) }}" class="alert-danger">Supprimer</a>
                         {% endif %}
