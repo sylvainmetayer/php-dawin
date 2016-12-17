@@ -150,6 +150,7 @@ class TVShow
     public function addSeason(\AppBundle\Entity\Season $season)
     {
         $this->seasons[] = $season;
+        $season->setShow($this);
 
         return $this;
     }

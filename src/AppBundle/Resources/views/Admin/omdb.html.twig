@@ -14,8 +14,17 @@
                 </div>
             </form>
 
+            {% if app.session.flashBag.has('danger') %}
+                <div class="alert alert-danger">
+                    {% for msg in app.session.flashBag.get('danger') %}
+                        {{ msg }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+
             {% for entry in result %}
-                <a href="#" class="tvshow col-sm-6">
+                <a href="{{ path('admin_omdb_create', {id: entry.imdbID}) }}" class="tvshow col-sm-6">
                     {% if entry.Poster != 'N/A' %}
                         <img class="pull-left" src="{{ image(entry.Poster).resize(100, 100).png }}"/>
                     {% endif %}
