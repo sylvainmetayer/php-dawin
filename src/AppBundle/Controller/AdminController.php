@@ -2,6 +2,9 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Repository\EpisodeRepository;
+use AppBundle\Repository\SeasonRepository;
+use Doctrine\ORM\EntityManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -24,31 +27,31 @@ class AdminController extends Controller
      */
     public function addShowAction(Request $request)
     {
-    	$show = new TVShow;
-    	$form = $this->createForm(ShowType::class, $show);
-    	$success = false;
+        $show = new TVShow;
+        $form = $this->createForm(ShowType::class, $show);
+        $success = false;
 
-		$form->handleRequest($request);
-    	if ($form->isSubmitted() && $form->isValid()) {
-    		$file = $show->getImage();
-    		if ($file) {
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $file = $show->getImage();
+            if ($file) {
                 // Handling file upload
-    			$filename = md5(uniqid()).'.'.$file->guessExtension();
-    			$webRoot = $this->get('kernel')->getRootDir().'/../web';
+                $filename = md5(uniqid()) . '.' . $file->guessExtension();
+                $webRoot = $this->get('kernel')->getRootDir() . '/../web';
 
-    			$file->move($webRoot . '/uploads', $filename);
-    			$show->setImage($filename);
-    		}
+                $file->move($webRoot . '/uploads', $filename);
+                $show->setImage($filename);
+            }
 
-    		$em = $this->get('doctrine')->getManager();
-    		$em->persist($show);
-    		$em->flush();
-    		$success = true;
-    	}
+            $em = $this->get('doctrine')->getManager();
+            $em->persist($show);
+            $em->flush();
+            $success = true;
+        }
 
         return [
-        	'form' => $form->createView(),
-        	'success' => $success
+            'form' => $form->createView(),
+            'success' => $success
         ];
     }
 
@@ -64,8 +67,7 @@ class AdminController extends Controller
             $season = new Season;
             $season
                 ->setShow($show)
-                ->setNumber(count($show->getSeasons())+1)
-                ;
+                ->setNumber(count($show->getSeasons()) + 1);
             $em->persist($season);
             $em->flush();
         }
@@ -91,6 +93,30 @@ class AdminController extends Controller
     }
 
     /**
+     * @Route("/deleteSeason/{id}", name="admin_delete_season")
+     */
+    public function deleteSeasonAction($id)
+    {
+        /** @var EntityManager $em */
+        $em = $this->get('doctrine')->getManager();
+        $repo = $em->getRepository('AppBundle:Season');
+
+        /** @var Season $season */
+        if ($season = $repo->find($id)) {
+            /** @var Episode $episode */
+            foreach ($season->getEpisodes() as $episode) {
+                $em->remove($episode);
+            }
+
+            $em->remove($season);
+            $em->flush();
+            return $this->redirect($this->generateUrl('show', ['id' => $season->getShow()->getId()]));
+        } else {
+            return $this->redirect($this->generateUrl('homepage'));
+        }
+    }
+
+    /**
      * @Route("/addEpisode/{id}", name="admin_add_episode")
      * @Template()
      */
@@ -103,16 +129,15 @@ class AdminController extends Controller
             $episode = new Episode;
             $episode
                 ->setSeason($season)
-                ->setNumber(count($season->getEpisodes())+1)
-                ;
+                ->setNumber(count($season->getEpisodes()) + 1);
 
             $form = $this->createForm(EpisodeType::class, $episode);
 
             $form->handleRequest($request);
-        	if ($form->isSubmitted() && $form->isValid()) {
+            if ($form->isSubmitted() && $form->isValid()) {
                 $em->persist($episode);
                 $em->flush();
-                return $this->redirect($this->generateUrl('show',[
+                return $this->redirect($this->generateUrl('show', [
                     'id' => $episode->getSeason()->getShow()->getId()
                 ]));
             }
@@ -133,8 +158,7 @@ class AdminController extends Controller
     {
         $form = $this->createFormBuilder()
             ->add('keyword')
-            ->getForm()
-            ;
+            ->getForm();
 
         $result = [];
         $form->handleRequest($request);
