@@ -4,8 +4,17 @@
 
 {% block contents %}
     <section>
-    	<div class="container">
-    		
-    	</div>
+        <div class="container">
+            <div class="col-md-6">
+                <br/>
+                <ul>
+                    {% for episode in episodes %}
+                        <li>
+                            {{ episode.date |date("d/m/Y") }} : {{ episode.season.show }} - Saison {{ episode.season.number }} : {{ episode }} ({{ episode.number }})
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
     </section>
 {% endblock %}

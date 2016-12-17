@@ -2,6 +2,9 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Repository\EpisodeRepository;
+use AppBundle\Repository\TVShowRepository;
+use Doctrine\ORM\EntityManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -24,6 +27,7 @@ class DefaultController extends Controller
      */
     public function showsAction()
     {
+        /** @var EntityManager $em */
         $em = $this->get('doctrine')->getManager();
         $repo = $em->getRepository('AppBundle:TVShow');
 
@@ -38,12 +42,13 @@ class DefaultController extends Controller
      */
     public function showAction($id)
     {
+        /** @var EntityManager $em */
         $em = $this->get('doctrine')->getManager();
         $repo = $em->getRepository('AppBundle:TVShow');
 
         return [
             'show' => $repo->find($id)
-        ];        
+        ];
     }
 
     /**
@@ -52,7 +57,14 @@ class DefaultController extends Controller
      */
     public function calendarAction()
     {
-        return [];
+
+        $em = $this->getDoctrine();
+
+        /** @var EpisodeRepository $repo */
+        $repo = $em->getRepository("AppBundle:Episode");
+        $episodes = $repo->findNextCalendar();
+
+        return ["episodes" => $episodes];
     }
 
     /**
