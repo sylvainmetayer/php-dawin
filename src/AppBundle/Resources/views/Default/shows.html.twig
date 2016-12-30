@@ -16,9 +16,26 @@
                 {% endfor %}
             </div>
 
-            {% if app.user %}
-                <a href="{{ path('admin_add_show') }}">Ajouter une série</a>
-            {% endif %}
+            <div class="row">
+                Page {{ page+1 }} / {{ count+1 }}
+                
+                {% if page > 0 %}
+                    <br/>
+                    <a href="{{ path("shows", {page:page-1}) }}">Page précédente</a>
+                {% endif %}
+
+                {% if page < count %}
+                    <br/>
+                    <a href="{{ path("shows", {page:page+1}) }}">Page suivante</a>
+                {% endif %}
+
+            </div>
+
+            <div class="row">
+                {% if app.user %}
+                    <a href="{{ path('admin_add_show') }}">Ajouter une série</a>
+                {% endif %}
+            </div>
         </div>
     </section>
 {% endblock %}

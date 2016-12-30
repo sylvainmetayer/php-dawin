@@ -21,17 +21,21 @@ class DefaultController extends Controller
     }
 
     /**
-     * @Route("/shows", name="shows")
+     * @Route("/shows/{page}", name="shows", defaults={"page":"0"})
      * @Template()
      */
-    public function showsAction()
+    public function showsAction($page)
     {
         /** @var EntityManager $em */
         $em = $this->get('doctrine')->getManager();
         $repo = $em->getRepository('AppBundle:TVShow');
 
+        $shows = $repo->getTVShow($page, $this->getParameter("tvShowPerPage"));
+
         return [
-            'shows' => $repo->findAll()
+            'shows' => $shows,
+            "page" => $page,
+            "count" => intval(count($shows) / $this->getParameter("tvShowPerPage"))
         ];
     }
 
