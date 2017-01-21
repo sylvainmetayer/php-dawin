@@ -8,7 +8,7 @@ use AppBundle\Entity\Season;
 use AppBundle\Entity\TVShow;
 use AppBundle\Forms\EpisodeType;
 use AppBundle\Forms\ShowType;
-use AppBundle\Service\OMDBService;
+use AppBundle\Services\OMDBService;
 use Doctrine\ORM\EntityManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -172,7 +172,6 @@ class AdminController extends Controller
             $data = $form->getData();
             $omdb = new OMDbAPI();
 
-            // TODO Externaliser dans un service
             $result = $omdb->search($data['keyword']);
 
             if ($result->code != 200) {
@@ -202,10 +201,9 @@ class AdminController extends Controller
      */
     public function omdbCreateShowAction(Request $request, $id)
     {
-        /** @var OMDBService $omdb */
-        //$omdb = $this->get("app.omdb");
+        $omdbService = $this->get("app.omdb");
 
-        $result = $this->createTVShow($id);
+        $result = $omdbService->createTVShow($id);
 
         if ($result["code"] != 0) {
             $request->getSession()->getFlashBag()->add('danger', $result["content"]);
@@ -218,143 +216,5 @@ class AdminController extends Controller
     }
 
 
-    /**
-     * @param $omdbID
-     * @return array
-     */
-    public function createTVShow($omdbID)
-    {
-        $omdb = new OMDbAPI();
-        $details = $omdb->fetch('i', $omdbID);
-
-        if ($details->code != 200) {
-            $status["code"] = 1;
-            $status["content"] = "Erreur lors de la requête sur OMDB";
-            return $status;
-        }
-
-        if ($details->data->Response == "False") {
-            $status["code"] = 2;
-            $status["content"] = $details->data->Error;
-            return $status;
-        }
-
-        $details = $details->data;
-
-        $show = new TVShow();
-        $show->setSynopsis($details->Plot);
-        $show->setName($details->Title);
-
-        if ($details->Poster != null && $details->Poster != "N/A") {
-            $image = file_get_contents($details->Poster);
-
-            $extension = explode(".", $details->Poster);
-            $extensionType = $extension[count($extension) - 1];
-
-            $filename = $details->Title . "-" . rand(1, 200);
-            $filename = str_replace(' ', '', $filename) . "." . $extensionType;
-
-            $webRoot = $this->get('kernel')->getRootDir() . '/../web';
-            $uploadDir = $webRoot . '/uploads/';
-            $show->setImage($filename);
-            file_put_contents($uploadDir . $filename, $image);
-        } else {
-            $show->setImage(null);
-        }
-
-        $this->getDoctrine()->getEntityManager()->persist($show);
-        $this->getDoctrine()->getEntityManager()->flush();
-
-        $this->createSeasons($show, $omdbID);
-
-        $status["code"] = 0;
-        $status["content"] = $show;
-
-        return $status;
-    }
-
-    public function createSeasons(TVShow $show, $omdbID)
-    {
-        $omdb = new OMDbAPI();
-        $details = $omdb->fetch('i', $omdbID, ["season" => 1]);
-
-        if ($details->code !== 200) {
-
-            $status["code"] = 1;
-            $status["content"] = "Erreur lors de la requête sur OMDB";
-            return $status;
-        }
-
-        if ($details->data->Response == "False") {
-            $status["code"] = 2;
-            $status["content"] = $details->data->Error;
-            return $status;
-        }
-
-        $details = $details->data;
-        $seasonCount = $details->totalSeasons;
-
-        for ($i = 1; $i <= $seasonCount; $i++) {
-            $season = new Season();
-            $season->setNumber($i);
-            $season->setShow($show);
-
-            $retour = $this->createEpisodes($season, $i, $omdbID);
-            if ($retour["code"] != 0) {
-                $status["code"] = 3;
-                $status["content"] = "Erreur lors de la création des épisodes.";
-                return $status;
-            }
-
-            $this->getDoctrine()->getEntityManager()->persist($season);
-            $this->getDoctrine()->getEntityManager()->persist($show);
-
-        }
-
-        $this->getDoctrine()->getEntityManager()->flush();
-
-        $status["code"] = 0;
-        $status["content"] = "Ok";
-
-        return $status;
-    }
-
-    public function createEpisodes(Season $season, $seasonNumber, $omdbID)
-    {
-        $omdb = new OMDbAPI();
-        $details = $omdb->fetch('i', $omdbID, ["season" => $seasonNumber]);
-
-        if ($details->code !== 200) {
-
-            $status["code"] = 1;
-            $status["content"] = "Erreur lors de la requête sur OMDB";
-            return $status;
-        }
-
-        if ($details->data->Response == "False") {
-            $status["code"] = 2;
-            $status["content"] = $details->data->Error;
-            return $status;
-        }
-
-        $details = $details->data;
-
-        foreach ($details->Episodes as $episodeInfo) {
-            $episode = new Episode();
-            $episode->setSeason($season);
-            $episode->setNumber($episodeInfo->Episode);
-            $episode->setName($episodeInfo->Title);
-            if ($episodeInfo->Released != "N/A") {
-                $date = new \DateTime($episodeInfo->Released);
-                $episode->setDate($date);
-            }
-            $this->getDoctrine()->getEntityManager()->persist($episode);
-        }
-
-        $this->getDoctrine()->getEntityManager()->persist($season);
-        $this->getDoctrine()->getEntityManager()->flush();
-
-        return ["code" => 0, "content" => 'Ok'];
-    }
 
 }

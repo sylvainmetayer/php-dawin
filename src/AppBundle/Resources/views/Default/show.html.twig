@@ -20,7 +20,7 @@
                         <a class="alert-danger" href="{{ path('admin_delete_season', {id:season.id}) }}">Supprimer</a>
                     </h4>
                     {% for episode in season.episodes %}
-                        {{ episode.number }} - {{ episode }} ({{ episode.date |date("d/m/Y") }})
+                        {{ episode.number }} - {{ episode }} {% if episode.date is not null %}({{ episode.date |date("d/m/Y") }}) {% endif %}
                         {% if app.user %}
                             <a href="{{ path('admin_delete_episode', {id: episode.id}) }}" class="alert-danger">Supprimer</a>
                         {% endif %}
