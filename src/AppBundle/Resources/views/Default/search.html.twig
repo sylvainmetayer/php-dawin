@@ -1,0 +1,38 @@
+{% extends 'AppBundle::layout.html.twig' %}
+
+{% block menu_calendar %}active{% endblock %}
+
+{% block contents %}
+    <section>
+        <div class="container">
+            {% if shows|length > 0 %}<h3>Series Results</h3>
+                <div class="row">
+
+                    {% for show in shows %}
+                        <a href="{{ path('show', {id: show.id}) }}" class="tvshow col-sm-6">
+                            {% if show.image is not null %}
+                                <img class="pull-left"
+                                     src="{{ web_image('uploads/'~show.image).resize(100, 100).png }}"/>
+                            {% endif %}
+                            <h4>{{ show.name }} ({{ show.seasons|length }} saisons)</h4>
+                            {{ show.synopsis }}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% if episodes|length > 0 %}<h3>Episodes Results</h3>
+                <div class="row">
+                    <ul>
+                    {% for episode in episodes %}
+                        <li>
+                            <a href="{{ path('show', {id: episode.season.show.id}) }}"> {{ episode.season.show.name }}</a> (Season {{ episode.season.number }})<br/>
+                            Episode {{ episode.number }} - {{ episode }} {% if episode.date is not null %}({{ episode.date |date("d/m/Y") }}) {% endif %}
+                        </li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+{% endblock %}

@@ -2,6 +2,8 @@
 
 namespace AppBundle\Repository;
 
+use DateTime;
+
 /**
  * EpisodeRepository
  *
@@ -17,7 +19,7 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository
      */
     public function findNextCalendar()
     {
-        $date = new \DateTime();
+        $date = new DateTime();
         $em = $this->getEntityManager();
         $queryBuilder = $em->createQueryBuilder();
 
@@ -29,6 +31,22 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository
             ->getQuery();
 
         return $query->getResult();
+    }
+
+    public function search($data)
+    {
+        $em = $this->getEntityManager();
+        $queryBuilder = $em->createQueryBuilder();
+
+        $query = $queryBuilder->select("e")
+            ->from("AppBundle:Episode", 'e');
+
+        $query
+            ->where("e.name like :name")
+            ->setParameter("name", "%" . $data);
+
+
+        return $query->getQuery()->getResult();
     }
 
 }

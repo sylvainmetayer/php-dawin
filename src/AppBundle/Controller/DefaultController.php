@@ -27,7 +27,6 @@ class DefaultController extends Controller
      */
     public function showsAction($page)
     {
-        /** @var EntityManager $em */
         $em = $this->get('doctrine')->getManager();
         $repo = $em->getRepository('AppBundle:TVShow');
 
@@ -46,12 +45,35 @@ class DefaultController extends Controller
      */
     public function showAction($id)
     {
-        /** @var EntityManager $em */
         $em = $this->get('doctrine')->getManager();
         $repo = $em->getRepository('AppBundle:TVShow');
 
         return [
             'show' => $repo->find($id)
+        ];
+    }
+
+    /**
+     * @Route("/search", name="search")
+     * @Method("POST")
+     * @Template()
+     */
+    public function searchAction(Request $request)
+    {
+
+        $data = $request->get("search");
+
+        $em = $this->getDoctrine();
+
+        $episodeRepo = $em->getRepository("AppBundle:Episode");
+        $showRepo = $em->getRepository("AppBundle:TVShow");
+
+        $resultEpisode = $episodeRepo->search($data);
+        $resultShow = $showRepo->search($data);
+
+        return [
+            "shows" => $resultShow,
+            "episodes" => $resultEpisode
         ];
     }
 
