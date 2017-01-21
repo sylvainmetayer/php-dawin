@@ -19,14 +19,14 @@
             </div>
 
             <div class="row">
-                Page {{ page }} / {{ count+1 }}
+                Page {{ page }} / {{ count }}
 
                 {% if page > 1 %}
                     <br/>
                     <a href="{{ path("shows", {page:page-1}) }}">Page précédente</a>
                 {% endif %}
 
-                {% if page <= count %}
+                {% if page < count %}
                     <br/>
                     <a href="{{ path("shows", {page:page+1}) }}">Page suivante</a>
                 {% endif %}
