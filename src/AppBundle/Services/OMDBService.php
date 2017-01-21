@@ -151,8 +151,6 @@ class OMDBService
             $episode->setNumber($episodeInfo->Episode);
             $episode->setName($episodeInfo->Title);
 
-            dump($episodeInfo->Released);
-
             if ($episodeInfo->Released != "N/A") {
                 $date = new \DateTime($episodeInfo->Released);
                 $episode->setDate($date);
