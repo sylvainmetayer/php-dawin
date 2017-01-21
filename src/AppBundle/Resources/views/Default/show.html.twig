@@ -6,8 +6,10 @@
     <section>
         <div class="container">
             <div class="col-xs-2">
+                {% if show.image is not null %}
                 <img class="pull-left" style="width:80%;margin:15px"
                      src="{{ web_image('uploads/'~show.image).resize(200, 300).png }}"/>
+                {% endif %}
             </div>
             <div class="col-xs-10">
                 <h3>{{ show }}</h3>

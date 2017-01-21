@@ -241,12 +241,26 @@ class AdminController extends Controller
 
         $details = $details->data;
 
-        dump($details);
-
         $show = new TVShow();
         $show->setSynopsis($details->Plot);
         $show->setName($details->Title);
-        $show->setImage($details->Poster); //FIXME Il faut télécharger l'image
+
+        if ($details->Poster != null && $details->Poster != "N/A") {
+            $image = file_get_contents($details->Poster);
+
+            $extension = explode(".", $details->Poster);
+            $extensionType = $extension[count($extension) - 1];
+
+            $filename = $details->Title . "-" . rand(1, 200);
+            $filename = str_replace(' ', '', $filename) . "." . $extensionType;
+
+            $webRoot = $this->get('kernel')->getRootDir() . '/../web';
+            $uploadDir = $webRoot . '/uploads/';
+            $show->setImage($filename);
+            file_put_contents($uploadDir . $filename, $image);
+        } else {
+            $show->setImage(null);
+        }
 
         $this->getDoctrine()->getEntityManager()->persist($show);
         $this->getDoctrine()->getEntityManager()->flush();
@@ -263,8 +277,6 @@ class AdminController extends Controller
     {
         $omdb = new OMDbAPI();
         $details = $omdb->fetch('i', $omdbID, ["season" => 1]);
-
-        dump($details);
 
         if ($details->code !== 200) {
 
@@ -285,6 +297,7 @@ class AdminController extends Controller
         for ($i = 1; $i <= $seasonCount; $i++) {
             $season = new Season();
             $season->setNumber($i);
+            $season->setShow($show);
 
             $retour = $this->createEpisodes($season, $i, $omdbID);
             if ($retour["code"] != 0) {
@@ -293,7 +306,6 @@ class AdminController extends Controller
                 return $status;
             }
 
-            $show->addSeason($season);
             $this->getDoctrine()->getEntityManager()->persist($season);
             $this->getDoctrine()->getEntityManager()->persist($show);
 
@@ -332,9 +344,10 @@ class AdminController extends Controller
             $episode->setSeason($season);
             $episode->setNumber($episodeInfo->Episode);
             $episode->setName($episodeInfo->Title);
-            $date = new \DateTime($episodeInfo->Released);
-            $episode->setDate($date);
-            $season->addEpisode($episode);
+            if ($episodeInfo->Released != "N/A") {
+                $date = new \DateTime($episodeInfo->Released);
+                $episode->setDate($date);
+            }
             $this->getDoctrine()->getEntityManager()->persist($episode);
         }
 
