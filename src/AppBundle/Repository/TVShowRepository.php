@@ -18,7 +18,7 @@ class TVShowRepository extends \Doctrine\ORM\EntityRepository
         $qb = $this->createQueryBuilder('t');
         $qb
             ->select('t')
-            ->setFirstResult($first_result*$max_results)
+            ->setFirstResult(($first_result-1)*$max_results)
             ->setMaxResults($max_results);
 
         $pag = new Paginator($qb);

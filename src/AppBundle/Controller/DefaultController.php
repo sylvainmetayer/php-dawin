@@ -22,7 +22,7 @@ class DefaultController extends Controller
     }
 
     /**
-     * @Route("/shows/{page}", name="shows", defaults={"page":"0"})
+     * @Route("/shows/{page}", name="shows", defaults={"page":"1"})
      * @Template()
      */
     public function showsAction($page)
