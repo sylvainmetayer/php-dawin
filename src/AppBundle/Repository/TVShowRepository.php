@@ -37,7 +37,7 @@ class TVShowRepository extends EntityRepository
         $query
             ->where("t.name like :name")
             ->orWhere("t.synopsis like :name")
-            ->setParameter("name", "%" . $data);
+            ->setParameter("name", "%" . $data . "%");
 
         return $query->getQuery()->getResult();
     }

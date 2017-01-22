@@ -43,7 +43,7 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository
 
         $query
             ->where("e.name like :name")
-            ->setParameter("name", "%" . $data);
+            ->setParameter("name", "%" . $data . "%");
 
 
         return $query->getQuery()->getResult();
